@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<style>
+    html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+    }
+    #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+    }
+
+    input.address {
+        width: 300px;
+
+    }
+
+    .face {
+        background-color: lightcyan;
+    }
+</style>
+<body>
+<form action="">
+    <input name="geolocation" class="address" type="text"/>
+</form>
+<div class="navigation">
+
+</div>
+<div id="map-canvas"></div>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+<script>
+
+    //marker load event
+
+    function getAddress(address_components){
+        var hashmap = {};
+        for (obj in address_components){
+            for (prop in address_components[obj]){
+                var value = address_components[obj][prop];
+                if (prop == 'short_name'){
+                    var _val = value;
+                }
+                if (prop == 'types'){
+                    hashmap[value] = address_components[obj]['long_name'];
+                }
+
+            }
+
+        }
+
+        var street = hashmap.street_number + " " +  hashmap.route;
+        var city = hashmap['locality,political'];
+        var zip = hashmap['postal_code']
+        var address = street + " " + city + " " + zip;
+        document.forms[0].geolocation.value = address;
+
+    }
+
+
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        var latlng = new google.maps.LatLng(lat, lng);
+        var latlng_2 = new google.maps.LatLng(lat+0.2, lng-1);
+        var latlng_3 = new google.maps.LatLng(lat-0.3, lng+1);
+
+        var geocoder = new google.maps.Geocoder();
+
+        geocoder.geocode({'latLng': latlng}, function(results, status){
+            if (status == google.maps.GeocoderStatus.OK ){
+                getAddress(results[0]['address_components']);
+
+            }
+        });
+
+        var mapOptions = {
+            zoom: 8,
+            center: latlng,
+            mapTypeId: 'roadmap'
+        };
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        var marker = new google.maps.Marker({
+            position: latlng,
+            icon: 'img/photo.jpg',
+            map: map,
+            title: "Go Live Labs"
+        });
+
+        var marker_1 = new google.maps.Marker({
+            position: latlng_2,
+            icon: 'img/photo.jpg',
+            map: map,
+            title: "Go Live Labs"
+        });
+        var marker_2 = new google.maps.Marker({
+            position: latlng_3,
+            icon: 'img/photo.jpg',
+            map: map,
+            title: "Go Live Labs"
+        });
+
+        var fltPath = [latlng, latlng_2, latlng_3];
+
+        var flightPath = new google.maps.Polyline({
+            path: fltPath,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+
+        flightPath.setMap(map);
+
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setInterval(function(){
+            getInfo().open(map,marker);
+            getInfo().open(map,marker_1);
+            getInfo().open(map,marker_2);
+        }, 3000);
+        google.maps.event.addDomListener(marker, 'click', function(){
+
+        });
+
+    });
+    var sentence = "Hey where am I??";
+
+    var arr = sentence.split(" ");
+    function getRandom(arr){
+        var random = Math.floor(Math.random()*arr.length);
+        return arr[random];
+    }
+
+
+
+    function getInfo(){
+        var infowindow = new google.maps.InfoWindow({
+            content: "<div class='face'>"+ getRandom(arr)+"/<div>"
+        });
+        return infowindow;
+    }
+
+
+
+
+
+</script>
+</body>
+</html>

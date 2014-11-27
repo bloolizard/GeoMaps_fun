@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+<script>
+    function Person(name) {
+        this.name = name;
+    }
+    var ray = new Person();
+    console.log(ray.prototype);
+    console.log(Object.getPrototypeOf(ray));
+
+    var parent = {
+        name: "test"
+    };
+
+    var child = Object.create(parent);
+    console.log(parent);
+    console.log(child);
+</script>
+</body>
+</html>
